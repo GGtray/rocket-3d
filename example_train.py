@@ -12,12 +12,12 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 if __name__ == '__main__':
 
-    task = 'hover'  # 'hover' or 'landing'
+    task = 'landing'  # 'hover' or 'landing'
 
     max_m_episode = 800000
     max_steps = 800
 
-    env = Rocket(task=task, max_steps=max_steps)
+    env = Rocket(task=task, rocket_type='falcon', max_steps=max_steps) # falcon or starship
     ckpt_folder = os.path.join('./', task + '_ckpt')
     if not os.path.exists(ckpt_folder):
         os.mkdir(ckpt_folder)
@@ -28,10 +28,12 @@ if __name__ == '__main__':
     net = ActorCritic(input_dim=env.state_dims, output_dim=env.action_dims).to(device)
     if len(glob.glob(os.path.join(ckpt_folder, '*.pt'))) > 0:
         # load the last ckpt
-        checkpoint = torch.load(glob.glob(os.path.join(ckpt_folder, '*.pt'))[-1])
+        # checkpoint = torch.load(glob.glob(os.path.join(ckpt_folder, '*.pt'))[-1])
+        checkpoint = torch.load('landing_ckpt/ckpt_00085401.pt')
         net.load_state_dict(checkpoint['model_G_state_dict'])
         last_episode_id = checkpoint['episode_id']
         REWARDS = checkpoint['REWARDS']
+
 
     for episode_id in range(last_episode_id, max_m_episode):
 
@@ -45,7 +47,7 @@ if __name__ == '__main__':
             log_probs.append(log_prob)
             values.append(value)
             masks.append(1-done)
-            if episode_id % 100 == 1:
+            if episode_id % 50 == 1:
                 env.render()
 
             if done or step_id == max_steps-1:

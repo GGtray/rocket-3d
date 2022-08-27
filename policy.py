@@ -61,7 +61,7 @@ class MLP(nn.Module):
 
         self.mapping = PositionalMapping(input_dim=input_dim, L=7)
 
-        h_dim = 128
+        h_dim = 128 # hidden layer
         self.linear1 = nn.Linear(in_features=self.mapping.output_dim, out_features=h_dim, bias=True)
         self.linear2 = nn.Linear(in_features=h_dim, out_features=h_dim, bias=True)
         self.linear3 = nn.Linear(in_features=h_dim, out_features=h_dim, bias=True)
@@ -113,9 +113,9 @@ class ActorCritic(nn.Module):
             action_id = np.argmax(np.squeeze(probs.detach().cpu().numpy()))
         else:
             if random.random() < exploration:  # exploration
-                action_id = random.randint(0, self.output_dim - 1)
+                action_id = random.randint(0, self.output_dim - 1) # guarantee all the action table be explored
             else:
-                action_id = np.random.choice(self.output_dim, p=np.squeeze(probs.detach().cpu().numpy()))
+                action_id = np.random.choice(self.output_dim, p=np.squeeze(probs.detach().cpu().numpy())) # sampling
 
         log_prob = torch.log(probs[action_id] + 1e-9)
 
@@ -132,6 +132,7 @@ class ActorCritic(nn.Module):
         values = torch.stack(values)
 
         advantage = Qvals - values
+        
         actor_loss = (-log_probs * advantage.detach()).mean()
         critic_loss = 0.5 * advantage.pow(2).mean()
         ac_loss = actor_loss + critic_loss
