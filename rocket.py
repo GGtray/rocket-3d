@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import utils
+import cv2
 
 
 class Rocket(object):
@@ -92,10 +93,11 @@ class Rocket(object):
         vphi1 = 30 / 180 * np.pi
         vphi2 = -30 / 180 * np.pi
 
-        action_table = [[f0, vphi0], [f0, vphi1], [f0, vphi2],
-                        [f1, vphi0], [f1, vphi1], [f1, vphi2],
-                        [f2, vphi0], [f2, vphi1], [f2, vphi2]
-                        ]
+        action_table = [
+            [f0, vphi0], [f0, vphi1], [f0, vphi2],
+            [f1, vphi0], [f1, vphi1], [f1, vphi2],
+            [f2, vphi0], [f2, vphi1], [f2, vphi2]
+        ]
         return action_table
 
     def get_random_action(self):
@@ -263,58 +265,6 @@ class Rocket(object):
             done = False
 
         return self.flatten(self.state), reward, done, None
-
-    def step_nonflatten(self, action):
-
-        x, y, vx, vy = self.state['x'], self.state['y'], self.state['vx'], self.state['vy']
-        theta, vtheta = self.state['theta'], self.state['vtheta']
-        phi = self.state['phi']
-
-        f, vphi = self.action_table[action]
-
-        ft, fr = -f*np.sin(phi), f*np.cos(phi)
-        fx = ft*np.cos(theta) - fr*np.sin(theta)
-        fy = ft*np.sin(theta) + fr*np.cos(theta)
-
-        rho = 1 / (125/(self.g/2.0))**0.5  # suppose after 125 m free fall, then air resistance = mg
-        ax, ay = fx-rho*vx, fy-self.g-rho*vy
-        atheta = ft*self.H/2 / self.I
-
-        # update agent
-        if self.already_landing:
-            vx, vy, ax, ay, theta, vtheta, atheta = 0, 0, 0, 0, 0, 0, 0
-            phi, f = 0, 0
-            action = 0
-
-        self.step_id += 1
-        x_new = x + vx*self.dt + 0.5 * ax * (self.dt**2)
-        y_new = y + vy*self.dt + 0.5 * ay * (self.dt**2)
-        vx_new, vy_new = vx + ax * self.dt, vy + ay * self.dt
-        theta_new = theta + vtheta*self.dt + 0.5 * atheta * (self.dt**2)
-        vtheta_new = vtheta + atheta * self.dt
-        phi = phi + self.dt*vphi
-
-        phi = max(phi, -20/180*3.1415926)
-        phi = min(phi, 20/180*3.1415926)
-
-        self.state = {
-            'x': x_new, 'y': y_new, 'vx': vx_new, 'vy': vy_new,
-            'theta': theta_new, 'vtheta': vtheta_new,
-            'phi': phi, 'f': f,
-            't': self.step_id, 'action_': action
-        }
-        self.state_buffer.append(self.state)
-
-        self.already_landing = self.check_landing_success(self.state)
-        self.already_crash = self.check_crash(self.state)
-        reward = self.calculate_reward(self.state)
-
-        if self.already_crash or self.already_landing:
-            done = True
-        else:
-            done = False
-
-        return self.flatten(self.state), reward, done, self.state
 
 
     def flatten(self, state):

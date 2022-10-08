@@ -28,7 +28,7 @@ if __name__ == '__main__':
     state_array = []
     for step_id in range(max_steps):
         action, log_prob, value = net.get_action(state)
-        state, reward, done, state_v = env.step_nonflatten(action)
+        state, reward, done, state_v = env.step(action)
         state_array.append(json.dumps(state_v))
         env.render(window_name='fly')
         if env.already_crash:

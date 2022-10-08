@@ -91,7 +91,6 @@ class ActorCritic(nn.Module):
         self.actor = MLP(input_dim=input_dim, output_dim=output_dim)
         self.critic = MLP(input_dim=input_dim, output_dim=1)
         self.softmax = nn.Softmax(dim=-1)
-
         self.optimizer = optim.RMSprop(self.parameters(), lr=5e-5)
 
     def forward(self, x):
@@ -141,3 +140,10 @@ class ActorCritic(nn.Module):
         ac_loss.backward()
         network.optimizer.step()
 
+
+if __name__ == '__main__':
+    x = torch.randn(2, 3, 4)
+    print(x)
+    # y = x.view(12)
+    # print(y)
+    print(x.view([-1, 1]))

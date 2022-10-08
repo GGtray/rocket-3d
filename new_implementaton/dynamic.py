@@ -1,3 +1,4 @@
+import random
 import numpy as np
 
 state_buffer = {}
@@ -47,7 +48,6 @@ def check_crash(state):
 
 
 def calculate_reward(self, state):
-
         x_range = world_x_max - world_x_min
         y_range = world_y_max - world_y_min
 
@@ -78,14 +78,26 @@ def calculate_reward(self, state):
 
 def init(state):
     # create random state
+    x_range = world_x_max - world_x_min
+    y_range = world_y_max - world_y_min
+    xc = (world_x_max + world_x_min) / 2.0
+    yc = (world_y_max + world_y_min) / 2.0
+
+    x = xc
+    y = yc + 0.2 * y_range
+    theta = random.uniform(-45, 45) / 180 * np.pi
+    vy = -10
+
     state = {
-        'x': x_new, 'y': y_new, 'vx': vx_new, 'vy': vy_new,
-        'theta': theta_new, 'vtheta': vtheta_new,
-        'phi': phi, 'f': f,
-        't': step_id * dt,
+        'x': x, 'y': y, 
+        'vx': 0, 'vy': vy,
+        'theta': theta, 'vtheta': vtheta_new,
+        'phi':0, 'f': 0,
+        't': 0,
         'already_landing': False,
         'already_crash': False
     }
+    
     return state
 
 def step(state, action):
