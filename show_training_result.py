@@ -11,7 +11,7 @@ if __name__ == '__main__':
 
     max_steps = 800
     ckpt_dir = glob.glob(os.path.join(task+'_ckpt', '*.pt'))
-    ckpt_dir = 'landing_ckpt/ckpt_00085001.pt'
+    # ckpt_dir = 'landing_ckpt/ckpt_00085001.pt'
     print(ckpt_dir)
 
     env = Rocket(task=task, max_steps=max_steps)

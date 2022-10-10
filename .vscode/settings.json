@@ -1,10 +1,17 @@
 {
     "cSpell.words": [
         "alongwith",
+        "ckpt",
         "dtype",
         "imshow",
+        "optim",
         "pannel",
         "polylines",
+        "probs",
+        "Qvals",
+        "randn",
+        "relu",
+        "softmax",
         "traj",
         "vtheta"
     ]

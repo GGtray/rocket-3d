@@ -10,6 +10,8 @@ import glob
 # Decide which device we want to run on
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+
+
 if __name__ == '__main__':
 
     task = 'landing'  # 'hover' or 'landing'
