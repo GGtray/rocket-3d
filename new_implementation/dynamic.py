@@ -1,5 +1,10 @@
+# from math import gamma
 import random
+from tkinter.messagebox import RETRY
 import numpy as np
+
+from dynamic_helper import M1_gamma, M2_psi, M3_phi, thrust_convert_phi_psi_to_1_2, thrust_to_fx_fy_fz, omage_b_to_valtitude
+
 
 state_buffer = []
 
@@ -8,6 +13,7 @@ g = 9.8
 H = 50
 I = 1/12 * H * H
 target_r = 50
+M = 20
 
 world_x_min = -300  # meters
 world_x_max = 300
@@ -137,29 +143,81 @@ def calculate_reward(state):
         return reward
 
 
-# def init(state):
-#     # create random state
-#     x_range = world_x_max - world_x_min
-#     y_range = world_y_max - world_y_min
-#     xc = (world_x_max + world_x_min) / 2.0
-#     yc = (world_y_max + world_y_min) / 2.0
 
-#     x = xc
-#     y = yc + 0.2 * y_range
-#     theta = random.uniform(-45, 45) / 180 * np.pi
-#     vy = -10
+def dynamic_centriod(state, action):
+    # centriod
+    x, y, z = state['x'], state['y'], state['z']
+    vx, vy, vz = state['vx'], state['vy'], state['vz']
 
-#     state = {
-#         'x': x, 'y': y, 
-#         'vx': 0, 'vy': vy,
-#         'theta': theta, 'vtheta': vtheta_new,
-#         'phi':0, 'f': 0,
-#         't': 0,
-#         'already_landing': False,
-#         'already_crash': False
-#     }
+    F, theta_phi, theta_psi = action['F'], action['theta_phi'], action['theta_psi']
+
+    theta_1, theta_2 = thrust_convert_phi_psi_to_1_2(theta_phi, theta_psi)
+    fx, fy, fz = thrust_to_fx_fy_fz(F, theta_1, theta_2)
+    f_b = [fx, fy, fz]
+
+    # 当前姿态
+    phi, psi, gamma = state['phi'], state['psi'], state['gamma']
+    f_f = M3_phi(-phi, M2_psi(-psi, M1_gamma(-gamma, f_b)))
+    G = [0, -g * M, 0]
+
+    f_f_joint = f_f + G
+    ax = f_f_joint[0] / M
+    ay = f_f_joint[1] / M
+    az = f_f_joint[2] / M
+
+    x_new = x + vx*dt + 0.5 * ax * (dt**2)
+    y_new = y + vy*dt + 0.5 * ay * (dt**2)
+    z_new = z + vz*dt + 0.5 * az * (dt**2)
+
+    vx_new = vx + ax * dt
+    vy_new = vy + ay * dt
+    vz_new = vz + az * dt
+
+    return x_new, y_new, z_new, vx_new, vy_new, vz_new
+
     
-#     return state
+def dynamic_altitude(state, action):
+     # 当前姿态
+    phi, psi, gamma = state['phi'], state['psi'], state['gamma']
+
+    F, theta_phi, theta_psi = action['F'], action['theta_phi'], action['theta_psi']
+
+    theta_1, theta_2 = thrust_convert_phi_psi_to_1_2(theta_phi, theta_psi)
+    fx, fy, fz = thrust_to_fx_fy_fz(F, theta_1, theta_2)
+    f_b = [fx, fy, fz]
+    r = [0, -H / 2, 0]
+    M_b = np.cross(r, f_b)
+
+    omega_y_b = M_b[1] / (1/12 * M * (H**2)) * dt
+    omega_z_b = M_b[2] / (1/12 * M * (H**2)) * dt
+    omega_x_b = 0
+
+    vphi, vpsi, vgamma = omage_b_to_valtitude(omega_x_b, omega_y_b, omega_z_b, phi, psi, gamma)
+    phi_new = phi + vphi * dt
+    psi_new = psi + vpsi * dt
+    gamma_new = gamma + vgamma * dt
+
+    return phi_new, psi_new, gamma_new, vphi, vpsi, vgamma
+
+
+def dynamic_thrust(state, action):
+    pass
+
+
+def dynamic_step(state, action):
+    already_landing = state['already_landing']
+    if already_landing:
+        vx, vy, vz, ax, ay, ax = 0, 0, 0, 0, 0, 0
+        F, theta_phi, theta_psi = 0, 0, 0
+        
+    step_id = state['step_id'] + 1
+    x_new, y_new, z_new, vx_new, vy_new, vz_new \
+     = dynamic_centriod(state, action)
+    phi_new, psi_new, gamma_new, vphi, vpsi, vgamma \
+     = dynamic_altitude(state, action)
+    theta_phi, theta_psi = dynamic_thrust(state, action)
+
+    
 
 def step(state, action):
     
@@ -182,6 +240,7 @@ def step(state, action):
     rho = 1 / (125/(g/2.0))**0.5  # suppose after 125 m free fall, then air resistance = mg
     ax, ay = fx-rho*vx, fy-g-rho*vy
     atheta = ft*H/2 / I
+
 
 
     #### update agent
@@ -229,3 +288,30 @@ def step(state, action):
 
     return state, reward, done, None
 
+
+def test_dynamic():
+    state = {
+        'x': 100,
+        'y': 0,
+        'z': 0,
+        'vx': 0,
+        'vy': -10,
+        'vz': 0,
+        'phi': 0,
+        'psi': 0,
+        'gamma': 0,
+        'vphi': 0,
+        'vpsi': 0,
+        'vgamma': 0
+    }
+    action = {
+        'F': 0,
+        'theta_phi' : 0,
+        'theta_psi' : 0
+    }
+    print(dynamic_centriod(state, action))
+    print(dynamic_altitude(state, action))
+
+
+if __name__ == '__main__':
+    test_dynamic()
