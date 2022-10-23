@@ -4,9 +4,14 @@ def flatten(state):
      """
      能够将字典转化成数组
      """
-     x = [state['x'], state['y'], state['vx'], state['vy'],
-          state['theta'], state['vtheta'], state['t'],
-          state['phi']]
+     x = [
+          state['x'], state['y'], state['z'],
+          state['vx'], state['vy'], state['vz'],
+          state['phi'], state['psi'], state['gamma'],
+          state['vphi'], state['vpsi'], state['vgamma'],
+          state['t'],
+          state['theta_phi'], state['theta_psi'],
+          ]
      return np.array(x, dtype=np.float32)/100.
 
 

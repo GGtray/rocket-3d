@@ -73,22 +73,22 @@ def thrust_to_fx_fy_fz(F, theta_1, theta_2):
     return fx, fy, fz
 
 
-def omage_b_to_valtitude(ox, oy, oz, phi, psi, gamma):
+def omage_b_to_vattitude(ox, oy, oz, phi, psi, gamma):
     vphi = (oy * sin(gamma) + oz * cos(gamma)) / cos(psi)
     vpsi = oy * cos(gamma) - oz * sin(gamma)
     vgamma = ox + tan(psi) * (oy * sin(gamma) + oz * cos(gamma))
 
     return vphi, vpsi, vgamma
 
-def test_thrust_convert_phi_psi_to_1_2():
-    print(pi/4, -pi + pi/4)
-    print(thrust_convert_phi_psi_to_1_2(pi/6, pi/6))
-    print(thrust_convert_phi_psi_to_1_2(-pi/6, pi/6))
-    print(thrust_convert_phi_psi_to_1_2(pi/6, -pi/6))
-    print(thrust_convert_phi_psi_to_1_2(-pi/6, -pi/6))
+# def test_thrust_convert_phi_psi_to_1_2():
+#     print(pi/4, -pi + pi/4)
+#     print(thrust_convert_phi_psi_to_1_2(pi/6, pi/6))
+#     print(thrust_convert_phi_psi_to_1_2(-pi/6, pi/6))
+#     print(thrust_convert_phi_psi_to_1_2(pi/6, -pi/6))
+#     print(thrust_convert_phi_psi_to_1_2(-pi/6, -pi/6))
 
-def test_thrust_to_fx_fy_fz():
-    print(thrust_to_fx_fy_fz(10, pi/4, pi/4))
+# def test_thrust_to_fx_fy_fz():
+#     print(thrust_to_fx_fy_fz(10, pi/4, pi/4))
 
 if __name__ == "__main__":
     # test_thrust_to_fx_fy_fz()

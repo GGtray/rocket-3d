@@ -1,4 +1,5 @@
 import torch
+from dynamic import create_action_table
 import dynamic
 from policy import ActorCritic
 import matplotlib.pyplot as plt
@@ -19,14 +20,16 @@ if __name__ == '__main__':
     max_steps = 800
     max_m_episode = 800000
 
-    ckpt_folder = os.path.join('.\\new_implementation', 'landing_ckpt')
-
+    ckpt_folder = os.path.join('.\\new_implementation', '3d_landing_ckpt')
+    result_array_folder = os.path.join('.\\new_implementation', '3d_trajectory')
+    if not os.path.exists(result_array_folder):
+        os.mkdir(result_array_folder)
     if not os.path.exists(ckpt_folder):
         os.mkdir(ckpt_folder)
 
     
-    state_dims = 8
-    action_dims = 9
+    state_dims = 15
+    action_dims = 27
 
     rocket = dynamic.Rocket()
     net = ActorCritic(input_dim=state_dims, output_dim=action_dims).to(device)
@@ -43,19 +46,20 @@ if __name__ == '__main__':
         last_episode_id = checkpoint['episode_id']
         REWARDS = checkpoint['REWARDS']
 
+    action_table = create_action_table()
     for episode_id in range(last_episode_id, max_m_episode):
-
-        state = rocket.reset()
+        state_buffer = []
+        state = rocket.init()
         rewards, log_probs, values, masks = [], [], [], []
         for step_id in range(max_steps):
-            action, log_prob, value = net.get_action(flatten(state))
-            state, reward, done, _ = dynamic.step(state, action)
-            
+            action_id, log_prob, value = net.get_action(flatten(state))
+            action = action_table[action_id]
+            state, reward, done, _ = dynamic.dynamic_step(state, action)
             rewards.append(reward)
             log_probs.append(log_prob)
             values.append(value)
             masks.append(1-done)
-
+            state_buffer.append(state)
             if done or step_id == max_steps-1:
                 _, _, Qval = net.get_action(flatten(state))
                 net.update_ac(net, rewards, log_probs, values, masks, Qval, gamma=0.999)
@@ -72,9 +76,13 @@ if __name__ == '__main__':
             plt.xlabel('m episode')
             plt.ylabel('reward')
             plt.savefig(os.path.join(ckpt_folder, 'rewards_' + str(episode_id).zfill(8) + '.jpg'))
-            plt.close()
+            plt.close() 
 
             torch.save({'episode_id': episode_id,
                         'REWARDS': REWARDS,
                         'model_G_state_dict': net.state_dict()},
                         os.path.join(ckpt_folder, 'ckpt_' + str(episode_id).zfill(8) + '.pt'))
+            
+            json_array = json.dumps(state_buffer)
+            with open(result_array_folder + '\\{episode_id}.txt'.format(episode_id=episode_id), 'w') as f:
+                f.write(json_array)
