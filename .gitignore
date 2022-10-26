@@ -120,7 +120,5 @@ dmypy.json
 demo*
 TTT*
 rewards.jpg
-hover_ckpt
-landing_ckpt
-3d_landing_ckpt
-3d_trajectory
+*ckpt
+*trajectory

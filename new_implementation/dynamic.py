@@ -10,7 +10,7 @@ state_buffer = {}
 
 dt = 0.05
 g = 9.8
-H = 50
+H = 20
 I = 1/12 * H ** 2
 target_r = 50
 M = 20
@@ -24,10 +24,13 @@ world_z_max = 300
 
 max_steps = 800
 target_x, target_z, target_y, target_r = 0, 0, H/2.0, 50
+def create_action_table_1d( f0=1.2*9.8*M, f1=2.0*9.8*M, f2=3*9.8*M):
+    action_table = [f0, f1, f2]
+    return action_table
 
 
 def create_action_table(
-    f0=0.2*9.8, f1=1.0*9.8, f2=2*9.8, 
+    f0=0.5*9.8*M, f1=1.0*9.8*M, f2=2*9.8*M, 
     vtheta_phi_0=0, vtheta_phi_1=30 / 180 * np.pi, vtheta_phi_2=-30 / 180 * np.pi,
     vtheta_psi_0=0, vtheta_psi_1=30 / 180 * np.pi, vtheta_psi_2=-30 / 180 * np.pi
     ):
@@ -49,7 +52,7 @@ def create_action_table(
     return action_table
 
 def create_action_table_s(
-   f0=0.2*9.8, f1=1.0*9.8, f2=2*9.8, 
+   f0=0.2*9.8*M, f1=1.0*9.8*M, f2=2*9.8*M, 
     vtheta_phi_0=0, vtheta_phi_1=30 / 180 * np.pi, vtheta_phi_2=-30 / 180 * np.pi,
     vtheta_psi_0=0, vtheta_psi_1=30 / 180 * np.pi, vtheta_psi_2=-30 / 180 * np.pi
     ):
@@ -87,12 +90,12 @@ def  create_random_start_state():
         y = yc + 0.4*y_range
 
 
-        phi, psi = 0, 0
+        phi, psi = np.pi/2, 0
         
         vy = -50
 
         state = {
-            'x': x, 'y': y, 'z': z,
+            'x': 0, 'y': 500, 'z': 0,
             'vx': 0, 'vy': vy, 'vz': 0,
             'phi': phi, 'psi': psi, 'gamma': 0,
             'vphi': 0, 'vpsi':0, 'vgamma': 0,
@@ -210,7 +213,10 @@ def dynamic_centriod(state, action):
     x, y, z = state['x'], state['y'], state['z']
     vx, vy, vz = state['vx'], state['vy'], state['vz']
 
-    F, theta_phi, theta_psi = action
+    # F, theta_phi, theta_psi = action
+    # for 1d exp
+    F = action
+    theta_phi, theta_psi = 0, 0
 
     theta_1, theta_2 = thrust_convert_phi_psi_to_1_2(theta_phi, theta_psi)
     fx, fy, fz = thrust_to_fx_fy_fz(F, theta_1, theta_2)
@@ -241,7 +247,10 @@ def dynamic_attitude(state, action):
      # 当前姿态
     phi, psi, gamma = state['phi'], state['psi'], state['gamma']
 
-    F, theta_phi, theta_psi = action
+    # F, theta_phi, theta_psi = action # for 1d expr
+    F = action
+    theta_phi = 0
+    theta_psi = 0
 
     theta_1, theta_2 = thrust_convert_phi_psi_to_1_2(theta_phi, theta_psi)
     fx, fy, fz = thrust_to_fx_fy_fz(F, theta_1, theta_2)
@@ -263,12 +272,15 @@ def dynamic_attitude(state, action):
 
 def dynamic_thrust(state, action):
     theta_phi, theta_psi = state['theta_phi'], state['theta_psi']
-    _, vtheta_phi, vtheta_psi = action
+    # F, vtheta_phi, vtheta_psi = action # for 1d exp
+
+    F = state['F']
+    vtheta_phi, vtheta_psi = 0, 0
 
     new_theta_phi = theta_phi + vtheta_phi * dt
     new_theta_psi = theta_psi + vtheta_psi * dt
 
-    return new_theta_phi, new_theta_psi
+    return F, new_theta_phi, new_theta_psi
 
 
 
@@ -284,7 +296,7 @@ def dynamic_step(state, action):
      = dynamic_centriod(state, action)
     phi_new, psi_new, gamma_new, vphi_new, vpsi_new, vgamma_new \
      = dynamic_attitude(state, action)
-    theta_phi, theta_psi = dynamic_thrust(state, action)
+    F, theta_phi, theta_psi = dynamic_thrust(state, action)
 
     already_landing = check_landing_success(state)
     already_crash = check_crash(state)
@@ -296,12 +308,14 @@ def dynamic_step(state, action):
     else:
         done = False
 
+    x_new = round(x_new, 5) # 1d expr
+    z_new = round(x_new, 5) # 1d expr
     state = {
         'x': x_new, 'y': y_new, 'z': z_new,
         'vx': vx_new, 'vy': vy_new, 'vz': vz_new,
-        'phi': phi_new, 'psi': psi_new, 'gamma':gamma_new,
+        'phi': np.pi/2, 'psi': 0, 'gamma': 0, # for 1d expr
         'vphi': vphi_new, 'vpsi': vpsi_new, 'vgamma': vgamma_new,
-        'F': action[0], 'theta_phi': theta_phi, 'theta_psi': theta_psi,
+        'F': F, 'theta_phi': theta_phi, 'theta_psi': theta_psi,
         'step_id': step_id, 't': step_id * dt,
         'already_crash': already_crash,
         'already_landing': already_landing
