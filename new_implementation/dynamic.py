@@ -30,7 +30,7 @@ def create_action_table_1d( f0=1.2*9.8*M, f1=2.0*9.8*M, f2=3*9.8*M):
 
 
 def create_action_table(
-    f0=0.5*9.8*M, f1=1.0*9.8*M, f2=2*9.8*M, 
+    f0=1.2*9.8*M, f1=2.0*9.8*M, f2=3*9.8*M, 
     vtheta_phi_0=0, vtheta_phi_1=30 / 180 * np.pi, vtheta_phi_2=-30 / 180 * np.pi,
     vtheta_psi_0=0, vtheta_psi_1=30 / 180 * np.pi, vtheta_psi_2=-30 / 180 * np.pi
     ):
@@ -51,27 +51,27 @@ def create_action_table(
 
     return action_table
 
-def create_action_table_s(
-   f0=0.2*9.8*M, f1=1.0*9.8*M, f2=2*9.8*M, 
-    vtheta_phi_0=0, vtheta_phi_1=30 / 180 * np.pi, vtheta_phi_2=-30 / 180 * np.pi,
-    vtheta_psi_0=0, vtheta_psi_1=30 / 180 * np.pi, vtheta_psi_2=-30 / 180 * np.pi
-    ):
+# def create_action_table_s(
+#    f0=0.2*9.8*M, f1=1.0*9.8*M, f2=2*9.8*M, 
+#     vtheta_phi_0=0, vtheta_phi_1=30 / 180 * np.pi, vtheta_phi_2=-30 / 180 * np.pi,
+#     vtheta_psi_0=0, vtheta_psi_1=30 / 180 * np.pi, vtheta_psi_2=-30 / 180 * np.pi
+#     ):
 
-    action_table = [
-    [f0, vtheta_phi_0, vtheta_psi_0], [f0, vtheta_phi_1, vtheta_psi_0], [f0, vtheta_phi_2, vtheta_psi_0],
-    [f1, vtheta_phi_0, vtheta_psi_0], [f1, vtheta_phi_1, vtheta_psi_0], [f1, vtheta_phi_2, vtheta_psi_0],
-    [f2, vtheta_phi_0, vtheta_psi_0], [f2, vtheta_phi_1, vtheta_psi_0], [f2, vtheta_phi_2, vtheta_psi_0],
+#     action_table = [
+#     [f0, vtheta_phi_0, vtheta_psi_0], [f0, vtheta_phi_1, vtheta_psi_0], [f0, vtheta_phi_2, vtheta_psi_0],
+#     [f1, vtheta_phi_0, vtheta_psi_0], [f1, vtheta_phi_1, vtheta_psi_0], [f1, vtheta_phi_2, vtheta_psi_0],
+#     [f2, vtheta_phi_0, vtheta_psi_0], [f2, vtheta_phi_1, vtheta_psi_0], [f2, vtheta_phi_2, vtheta_psi_0],
 
-    [f0, vtheta_phi_0, vtheta_psi_1], [f0, vtheta_phi_1, vtheta_psi_1], [f0, vtheta_phi_2, vtheta_psi_1],
-    [f1, vtheta_phi_0, vtheta_psi_1], [f1, vtheta_phi_1, vtheta_psi_1], [f1, vtheta_phi_2, vtheta_psi_1],
-    [f2, vtheta_phi_0, vtheta_psi_1], [f2, vtheta_phi_1, vtheta_psi_1], [f2, vtheta_phi_2, vtheta_psi_1],
+#     [f0, vtheta_phi_0, vtheta_psi_1], [f0, vtheta_phi_1, vtheta_psi_1], [f0, vtheta_phi_2, vtheta_psi_1],
+#     [f1, vtheta_phi_0, vtheta_psi_1], [f1, vtheta_phi_1, vtheta_psi_1], [f1, vtheta_phi_2, vtheta_psi_1],
+#     [f2, vtheta_phi_0, vtheta_psi_1], [f2, vtheta_phi_1, vtheta_psi_1], [f2, vtheta_phi_2, vtheta_psi_1],
     
-    [f0, vtheta_phi_0, vtheta_psi_2], [f0, vtheta_phi_1, vtheta_psi_2], [f0, vtheta_phi_2, vtheta_psi_2],
-    [f1, vtheta_phi_0, vtheta_psi_2], [f1, vtheta_phi_1, vtheta_psi_2], [f1, vtheta_phi_2, vtheta_psi_2],
-    [f2, vtheta_phi_0, vtheta_psi_2], [f2, vtheta_phi_1, vtheta_psi_2], [f2, vtheta_phi_2, vtheta_psi_2],
-    ] # 这个action table非常大，还有一种办法是变成一个时刻只能动一个方向
+#     [f0, vtheta_phi_0, vtheta_psi_2], [f0, vtheta_phi_1, vtheta_psi_2], [f0, vtheta_phi_2, vtheta_psi_2],
+#     [f1, vtheta_phi_0, vtheta_psi_2], [f1, vtheta_phi_1, vtheta_psi_2], [f1, vtheta_phi_2, vtheta_psi_2],
+#     [f2, vtheta_phi_0, vtheta_psi_2], [f2, vtheta_phi_1, vtheta_psi_2], [f2, vtheta_phi_2, vtheta_psi_2],
+#     ] # 这个action table非常大，还有一种办法是变成一个时刻只能动一个方向
 
-    return action_table
+#     return action_table
 
 def  create_random_start_state():
 
@@ -95,7 +95,7 @@ def  create_random_start_state():
         vy = -50
 
         state = {
-            'x': 0, 'y': 500, 'z': 0,
+            'x': x, 'y': y, 'z': 0,
             'vx': 0, 'vy': vy, 'vz': 0,
             'phi': phi, 'psi': psi, 'gamma': 0,
             'vphi': 0, 'vpsi':0, 'vgamma': 0,
@@ -184,7 +184,7 @@ def calculate_reward(state):
 
         loc_reward = 0.1*(1.0 - loc_norm)
 
-        dist_phi = abs(state['phi'] - 90/180*np.pi)
+        dist_phi = abs(state['phi'] - np.pi/2)
         dist_psi = abs(state['psi'])
         dist_gamma = abs(state['gamma'])
 
@@ -193,7 +193,7 @@ def calculate_reward(state):
         if att_norm <= np.pi / 6.0:
             att_reward = 0.1
         else:
-            att_reward = 0.1 * (1.0 - att_norm / (0.5 * np.pi))
+            att_reward = 0.1 * (1.0 - att_norm)
 
         reward = loc_reward + att_reward
 
@@ -213,10 +213,10 @@ def dynamic_centriod(state, action):
     x, y, z = state['x'], state['y'], state['z']
     vx, vy, vz = state['vx'], state['vy'], state['vz']
 
-    # F, theta_phi, theta_psi = action
+    F, theta_phi, theta_psi = action
     # for 1d exp
-    F = action
-    theta_phi, theta_psi = 0, 0
+    # F = action
+    # theta_phi, theta_psi = 0, 0
 
     theta_1, theta_2 = thrust_convert_phi_psi_to_1_2(theta_phi, theta_psi)
     fx, fy, fz = thrust_to_fx_fy_fz(F, theta_1, theta_2)
@@ -247,20 +247,20 @@ def dynamic_attitude(state, action):
      # 当前姿态
     phi, psi, gamma = state['phi'], state['psi'], state['gamma']
 
-    # F, theta_phi, theta_psi = action # for 1d expr
-    F = action
-    theta_phi = 0
-    theta_psi = 0
+    F, theta_phi, theta_psi = action # for 1d expr
+    # F = action
+    # theta_phi = 0
+    # theta_psi = 0
 
     theta_1, theta_2 = thrust_convert_phi_psi_to_1_2(theta_phi, theta_psi)
     fx, fy, fz = thrust_to_fx_fy_fz(F, theta_1, theta_2)
     f_b = [fx, fy, fz]
-    r = [0, -H / 2, 0]
+    r = [-H/2, 0, 0]
     M_b = np.cross(r, f_b)
 
     omega_y_b = M_b[1] / (1/12 * M * (H**2)) * dt
     omega_z_b = M_b[2] / (1/12 * M * (H**2)) * dt
-    omega_x_b = 0
+    omega_x_b = M_b[0] / (1/12 * M * (H**2)) * dt # 它如果不是零，动力学肯定是错的
 
     vphi, vpsi, vgamma = omage_b_to_vattitude(omega_x_b, omega_y_b, omega_z_b, phi, psi, gamma)
     phi_new = phi + vphi * dt
@@ -272,13 +272,19 @@ def dynamic_attitude(state, action):
 
 def dynamic_thrust(state, action):
     theta_phi, theta_psi = state['theta_phi'], state['theta_psi']
-    # F, vtheta_phi, vtheta_psi = action # for 1d exp
-
-    F = state['F']
-    vtheta_phi, vtheta_psi = 0, 0
+    
+    F, vtheta_phi, vtheta_psi = action # for 1d exp
+    # F = state['F']
+    # vtheta_phi, vtheta_psi = 0, 0
 
     new_theta_phi = theta_phi + vtheta_phi * dt
     new_theta_psi = theta_psi + vtheta_psi * dt
+
+    if new_theta_phi < -40/180 * np.pi: new_theta_phi = -40/180 * np.pi
+    elif new_theta_phi > 40/180 * np.pi: new_theta_phi = 40/180 * np.pi
+    
+    if new_theta_psi < -40/180 * np.pi: new_theta_psi = -40/180 * np.pi
+    elif new_theta_psi > 40/180 * np.pi: new_theta_psi = 40/180 * np.pi
 
     return F, new_theta_phi, new_theta_psi
 
@@ -308,12 +314,12 @@ def dynamic_step(state, action):
     else:
         done = False
 
-    x_new = round(x_new, 5) # 1d expr
-    z_new = round(x_new, 5) # 1d expr
+    # x_new = round(x_new, 5) # 1d expr
+    # z_new = round(x_new, 5) # 1d expr
     state = {
         'x': x_new, 'y': y_new, 'z': z_new,
         'vx': vx_new, 'vy': vy_new, 'vz': vz_new,
-        'phi': np.pi/2, 'psi': 0, 'gamma': 0, # for 1d expr
+        'phi': phi_new, 'psi': psi_new, 'gamma': gamma_new, # for 1d expr
         'vphi': vphi_new, 'vpsi': vpsi_new, 'vgamma': vgamma_new,
         'F': F, 'theta_phi': theta_phi, 'theta_psi': theta_psi,
         'step_id': step_id, 't': step_id * dt,

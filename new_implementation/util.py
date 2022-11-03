@@ -1,4 +1,5 @@
 import numpy as np
+import json
 
 def flatten(state):
      """
@@ -27,3 +28,15 @@ def moving_avg(x, N=500):
      x_pad = x_pad_left[::-1] + x + x_pad_right[::-1]
      y = np.convolve(x_pad, np.ones(N) / N, mode='same')
      return y[N:-N]
+
+
+def result_view_table(filename=r'new_implementation\3d_trajectory\15901.json'):
+     with open(filename, 'r') as file:
+          json_data = json.load(file)
+
+          for item in json_data:
+               print(item['vphi'])
+          # print(json_data[0])
+
+if __name__=="__main__":
+     result_view_table()

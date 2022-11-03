@@ -9,7 +9,7 @@ import torch.nn as nn
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def calculate_returns(next_value, rewards, masks, gamma=0.99):
+def calculate_returns(next_value, rewards, masks, gamma=0.7):
     R = next_value
     returns = []
     for step in reversed(range(len(rewards))):

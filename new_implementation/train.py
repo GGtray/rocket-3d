@@ -83,7 +83,7 @@ def train_1d():
             json_array = json.dumps(state_buffer)
             with open(result_array_folder + '\\{episode_id}.txt'.format(episode_id=episode_id), 'w') as f:
                 f.write(json_array)
-6732
+
 
 def train():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -99,10 +99,10 @@ def train():
 
     
     state_dims = 15
-    action_dims = 27
 
+    action_table = create_action_table()
     rocket = dynamic.Rocket()
-    net = ActorCritic(input_dim=state_dims, output_dim=action_dims).to(device)
+    net = ActorCritic(input_dim=state_dims, output_dim=len(action_table)).to(device)
  
 
     last_episode_id = 0
@@ -116,7 +116,7 @@ def train():
         last_episode_id = checkpoint['episode_id']
         REWARDS = checkpoint['REWARDS']
 
-    action_table = create_action_table()
+    
     for episode_id in range(last_episode_id, max_m_episode):
         state_buffer = []
         state = rocket.init()
@@ -139,7 +139,7 @@ def train():
         print('episode id: %d, episode reward: %.3f'
               % (episode_id, np.sum(rewards)))
 
-        if episode_id % 100 == 1:
+        if episode_id % 100 == 0:
             plt.figure()
             plt.plot(REWARDS), plt.plot(moving_avg(REWARDS, N=50))
             plt.legend(['episode reward', 'moving avg'], loc=2)
@@ -154,9 +154,11 @@ def train():
                         os.path.join(ckpt_folder, 'ckpt_' + str(episode_id).zfill(8) + '.pt'))
             
             json_array = json.dumps(state_buffer)
-            with open(result_array_folder + '\\{episode_id}.txt'.format(episode_id=episode_id), 'w') as f:
+            with open(result_array_folder + '\\{episode_id}.json'.format(episode_id=episode_id), 'w') as f:
                 f.write(json_array)
+            
+            # result_view_table(json_array)
 
 if __name__ == '__main__':
-    train_1d()
+    train()
     
