@@ -18,7 +18,7 @@ M = 20
 world_x_min = -300  # meters
 world_x_max = 300
 world_y_min = -30
-world_y_max = 570
+world_y_max = 570 # 这个地方思考一下
 world_z_min = -300
 world_z_max = 300
 
@@ -51,27 +51,28 @@ def create_action_table(
 
     return action_table
 
-# def create_action_table_s(
-#    f0=0.2*9.8*M, f1=1.0*9.8*M, f2=2*9.8*M, 
-#     vtheta_phi_0=0, vtheta_phi_1=30 / 180 * np.pi, vtheta_phi_2=-30 / 180 * np.pi,
-#     vtheta_psi_0=0, vtheta_psi_1=30 / 180 * np.pi, vtheta_psi_2=-30 / 180 * np.pi
-#     ):
+def create_action_table_vF(
+    vf0=0, vf1=0.3*9.8*M, vf2=-0.3*9.8*M, 
+    vtheta_phi_0=0, vtheta_phi_1=30 / 180 * np.pi, vtheta_phi_2=-30 / 180 * np.pi,
+    vtheta_psi_0=0, vtheta_psi_1=30 / 180 * np.pi, vtheta_psi_2=-30 / 180 * np.pi
+    ):
 
-#     action_table = [
-#     [f0, vtheta_phi_0, vtheta_psi_0], [f0, vtheta_phi_1, vtheta_psi_0], [f0, vtheta_phi_2, vtheta_psi_0],
-#     [f1, vtheta_phi_0, vtheta_psi_0], [f1, vtheta_phi_1, vtheta_psi_0], [f1, vtheta_phi_2, vtheta_psi_0],
-#     [f2, vtheta_phi_0, vtheta_psi_0], [f2, vtheta_phi_1, vtheta_psi_0], [f2, vtheta_phi_2, vtheta_psi_0],
+    action_table = [
+    [vf0, vtheta_phi_0, vtheta_psi_0], [vf0, vtheta_phi_1, vtheta_psi_0], [vf0, vtheta_phi_2, vtheta_psi_0],
+    [vf1, vtheta_phi_0, vtheta_psi_0], [vf1, vtheta_phi_1, vtheta_psi_0], [vf1, vtheta_phi_2, vtheta_psi_0],
+    [vf2, vtheta_phi_0, vtheta_psi_0], [vf2, vtheta_phi_1, vtheta_psi_0], [vf2, vtheta_phi_2, vtheta_psi_0],
 
-#     [f0, vtheta_phi_0, vtheta_psi_1], [f0, vtheta_phi_1, vtheta_psi_1], [f0, vtheta_phi_2, vtheta_psi_1],
-#     [f1, vtheta_phi_0, vtheta_psi_1], [f1, vtheta_phi_1, vtheta_psi_1], [f1, vtheta_phi_2, vtheta_psi_1],
-#     [f2, vtheta_phi_0, vtheta_psi_1], [f2, vtheta_phi_1, vtheta_psi_1], [f2, vtheta_phi_2, vtheta_psi_1],
+    [vf0, vtheta_phi_0, vtheta_psi_1], [vf0, vtheta_phi_1, vtheta_psi_1], [vf0, vtheta_phi_2, vtheta_psi_1],
+    [vf1, vtheta_phi_0, vtheta_psi_1], [vf1, vtheta_phi_1, vtheta_psi_1], [vf1, vtheta_phi_2, vtheta_psi_1],
+    [vf2, vtheta_phi_0, vtheta_psi_1], [vf2, vtheta_phi_1, vtheta_psi_1], [vf2, vtheta_phi_2, vtheta_psi_1],
     
-#     [f0, vtheta_phi_0, vtheta_psi_2], [f0, vtheta_phi_1, vtheta_psi_2], [f0, vtheta_phi_2, vtheta_psi_2],
-#     [f1, vtheta_phi_0, vtheta_psi_2], [f1, vtheta_phi_1, vtheta_psi_2], [f1, vtheta_phi_2, vtheta_psi_2],
-#     [f2, vtheta_phi_0, vtheta_psi_2], [f2, vtheta_phi_1, vtheta_psi_2], [f2, vtheta_phi_2, vtheta_psi_2],
-#     ] # 这个action table非常大，还有一种办法是变成一个时刻只能动一个方向
+    [vf0, vtheta_phi_0, vtheta_psi_2], [vf0, vtheta_phi_1, vtheta_psi_2], [vf0, vtheta_phi_2, vtheta_psi_2],
+    [vf1, vtheta_phi_0, vtheta_psi_2], [vf1, vtheta_phi_1, vtheta_psi_2], [vf1, vtheta_phi_2, vtheta_psi_2],
+    [vf2, vtheta_phi_0, vtheta_psi_2], [vf2, vtheta_phi_1, vtheta_psi_2], [vf2, vtheta_phi_2, vtheta_psi_2],
+    ] # 这个action table非常大，还有一种办法是变成一个时刻只能动一个方向
 
-#     return action_table
+    return action_table
+
 
 def  create_random_start_state():
 
@@ -85,21 +86,57 @@ def  create_random_start_state():
         yc = (world_y_max + world_y_min) / 2.0
 
 
-        x = random.uniform(xc - x_range / 4.0, xc + x_range / 4.0)
-        z = random.uniform(zc - z_range / 4.0, zc + z_range / 4.0)
+        x = random.uniform(xc - x_range / 6.0, xc + x_range / 6.0)
+        z = random.uniform(zc - z_range / 6.0, zc + z_range / 6.0)
         y = yc + 0.4*y_range
 
 
         phi, psi = np.pi/2, 0
-        
+
+        phi = random.uniform(np.pi/2 - 10/180 * np.pi, np.pi/2 + 10/180 * np.pi)
+        psi = random.uniform( - 10/180 * np.pi,  10/180 * np.pi)
+
         vy = -50
 
         state = {
-            'x': x, 'y': y, 'z': 0,
+            'x': x, 'y': y, 'z': z,
             'vx': 0, 'vy': vy, 'vz': 0,
             'phi': phi, 'psi': psi, 'gamma': 0,
             'vphi': 0, 'vpsi':0, 'vgamma': 0,
             'theta_phi': 0, 'theta_psi': 0, 'F': 0,
+            't': 0, 'step_id': 0
+        }
+
+        return state
+
+def  create_random_start_state_vF():
+
+        # predefined locations
+        x_range = world_x_max - world_x_min
+        y_range = world_y_max - world_y_min
+
+        xc = (world_x_max + world_x_min) / 2.0
+        yc = (world_y_max + world_y_min) / 2.0
+
+
+        x = random.uniform(xc - x_range / 6.0, xc + x_range / 6.0)
+        z = 0
+        y = yc + 0.4*y_range
+
+
+        phi = random.uniform(np.pi/2 - 10/180 * np.pi, np.pi/2 + 10/180 * np.pi)
+        psi = 0
+
+        vy = -50
+
+        F = 1.2 * 9.8 * M
+
+        state = {
+            'x': x, 'y': y, 'z': z,
+            'vx': 0, 'vy': vy, 'vz': 0,
+            'phi': phi, 'psi': psi, 'gamma': 0,
+            'vphi': 0, 'vpsi':0, 'vgamma': 0,
+            'theta_phi': 0, 'theta_psi': 0, 'F': F,
             't': 0, 'step_id': 0
         }
 
@@ -120,7 +157,7 @@ class Rocket(object):
         self.init()
 
     def init(self):
-        self.state = create_random_start_state()
+        self.state = create_random_start_state_vF()
         self.state['already_landing'] = False
         self.state['already_crash'] = False
         return self.state
@@ -212,8 +249,8 @@ def dynamic_centriod(state, action):
     # centriod
     x, y, z = state['x'], state['y'], state['z']
     vx, vy, vz = state['vx'], state['vy'], state['vz']
-
-    F, theta_phi, theta_psi = action
+    F = state['F']
+    vF, theta_phi, theta_psi = action
     # for 1d exp
     # F = action
     # theta_phi, theta_psi = 0, 0
@@ -242,15 +279,55 @@ def dynamic_centriod(state, action):
 
     return x_new, y_new, z_new, vx_new, vy_new, vz_new
 
+def dynamic_centriod_air(state, action):
+    # centriod
+    x, y, z = state['x'], state['y'], state['z']
+    vx, vy, vz = state['vx'], state['vy'], state['vz']
+    F = action['F']
+
+    vF, theta_phi, theta_psi = action
+    # for 1d exp
+    # F = action
+    # theta_phi, theta_psi = 0, 0
+
+    theta_1, theta_2 = thrust_convert_phi_psi_to_1_2(theta_phi, theta_psi)
+    fx, fy, fz = thrust_to_fx_fy_fz(F, theta_1, theta_2)
+    f_b = [fx, fy, fz]
+
+    # 当前姿态
+    phi, psi, gamma = state['phi'], state['psi'], state['gamma']
+    f_f = M3_phi(-phi, M2_psi(-psi, M1_gamma(-gamma, f_b)))
+    G = [0, -g * M, 0]
+
+    f_f_joint = f_f + G
+    ax = f_f_joint[0] / M
+    ay = f_f_joint[1] / M
+    az = f_f_joint[2] / M
+
+    # 增加概率风
+    p_air = random.uniform(0, 1)
+    if p_air < 0.5:
+        ax += 0.1 * 9.8 * M
+        az += 0.1 * 9.8 * M
+
+
+    x_new = x + vx*dt + 0.5 * ax * (dt**2)
+    y_new = y + vy*dt + 0.5 * ay * (dt**2)
+    z_new = z + vz*dt + 0.5 * az * (dt**2)
+
+    vx_new = vx + ax * dt
+    vy_new = vy + ay * dt
+    vz_new = vz + az * dt
+
+    return x_new, y_new, z_new, vx_new, vy_new, vz_new
     
+
 def dynamic_attitude(state, action):
      # 当前姿态
     phi, psi, gamma = state['phi'], state['psi'], state['gamma']
+    F = state['F']
+    vF, theta_phi, theta_psi = action # for 1d expr
 
-    F, theta_phi, theta_psi = action # for 1d expr
-    # F = action
-    # theta_phi = 0
-    # theta_psi = 0
 
     theta_1, theta_2 = thrust_convert_phi_psi_to_1_2(theta_phi, theta_psi)
     fx, fy, fz = thrust_to_fx_fy_fz(F, theta_1, theta_2)
@@ -289,6 +366,30 @@ def dynamic_thrust(state, action):
     return F, new_theta_phi, new_theta_psi
 
 
+def dynamic_thrust_vF(state, action):
+    F, theta_phi, theta_psi = state['F'], state['theta_phi'], state['theta_psi']
+    
+    vF, vtheta_phi, vtheta_psi = action # for 1d exp
+    # F = state['F']
+    # vtheta_phi, vtheta_psi = 0, 0
+
+    new_theta_phi = theta_phi + vtheta_phi * dt
+    new_theta_psi = theta_psi + vtheta_psi * dt
+    new_F = F + vF
+
+    if new_theta_phi < -40/180 * np.pi: new_theta_phi = -40/180 * np.pi
+    elif new_theta_phi > 40/180 * np.pi: new_theta_phi = 40/180 * np.pi
+    
+    if new_theta_psi < -40/180 * np.pi: new_theta_psi = -40/180 * np.pi
+    elif new_theta_psi > 40/180 * np.pi: new_theta_psi = 40/180 * np.pi
+
+    if new_F < 1.2 * 9.8 * M: new_F = 1.2 * 9.8 * M
+    elif new_F > 2 * 9.8 * M: new_F = 2 * 9.8 * M
+
+    return new_F, new_theta_phi, new_theta_psi
+
+
+
 
 def dynamic_step(state, action):
 
@@ -302,7 +403,7 @@ def dynamic_step(state, action):
      = dynamic_centriod(state, action)
     phi_new, psi_new, gamma_new, vphi_new, vpsi_new, vgamma_new \
      = dynamic_attitude(state, action)
-    F, theta_phi, theta_psi = dynamic_thrust(state, action)
+    F, theta_phi, theta_psi = dynamic_thrust_vF(state, action)
 
     already_landing = check_landing_success(state)
     already_crash = check_crash(state)
