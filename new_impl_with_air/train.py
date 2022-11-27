@@ -1,5 +1,5 @@
 import torch
-from dynamic import create_action_table_vF, create_action_table
+from dynamic import create_action_table_vF
 import dynamic
 from policy import ActorCritic
 import matplotlib.pyplot as plt
@@ -8,17 +8,17 @@ import glob
 import json
 import dynamic
 import numpy as np
-from util import flatten, moving_avg
+from util import flatten, moving_avg, filter_minimu
 
 
 
-def train():
+def train_with_air():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     max_steps = 800
     max_m_episode = 800000
 
-    ckpt_folder = os.path.join('.\\new_implementation', '3d_landing_ckpt_vF')
-    result_array_folder = os.path.join('.\\new_implementation', '3d_trajectory_vF')
+    ckpt_folder = os.path.join('.\\new_impl_with_air', '3d_landing_ckpt_vF_rho_z')
+    result_array_folder = os.path.join('.\\new_impl_with_air', '3d_trajectory_vF_rho_z')
     if not os.path.exists(result_array_folder):
         os.mkdir(result_array_folder)
     if not os.path.exists(ckpt_folder):
@@ -67,6 +67,7 @@ def train():
               % (episode_id, np.sum(rewards)))
 
         if episode_id % 100 == 0:
+            filter_minimu(REWARDS)
             plt.figure()
             plt.plot(REWARDS), plt.plot(moving_avg(REWARDS, N=50))
             plt.legend(['episode reward', 'moving avg'], loc=2)
@@ -84,7 +85,20 @@ def train():
             with open(result_array_folder + '\\{episode_id}.json'.format(episode_id=episode_id), 'w') as f:
                 f.write(json_array)
             
-            # result_view_table(json_array)
 
 if __name__ == '__main__':
-    train()
+    train_with_air()
+    # ckpt_folder = os.path.join('.\\new_impl_with_air', '3d_landing_ckpt_vF_rho_z')
+    # if len(glob.glob(os.path.join(ckpt_folder, '*.pt'))) > 0:
+    #     # load the last ckpt
+    #     checkpoint = torch.load(glob.glob(os.path.join(ckpt_folder, '*.pt'))[-1])
+    #     REWARDS = checkpoint['REWARDS']
+    #     episode_id = checkpoint['episode_id']
+    #     filter_minimu(REWARDS)
+    #     plt.figure()
+    #     plt.plot(REWARDS), plt.plot(moving_avg(REWARDS, N=50))
+    #     plt.legend(['episode reward', 'moving avg'], loc=2)
+    #     plt.xlabel('m episode')
+    #     plt.ylabel('reward')
+    #     plt.savefig(os.path.join(ckpt_folder, 'rewards_' + str(episode_id).zfill(8) + '.jpg'))
+    #     plt.close() 
