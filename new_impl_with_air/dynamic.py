@@ -28,9 +28,9 @@ rho = M * 9.8 / (50)**2
 
 
 def create_action_table_vF(
-    vf0=0, vf1=0.3*9.8*M, vf2=-0.3*9.8*M, 
-    vtheta_phi_0=0, vtheta_phi_1=30 / 180 * np.pi, vtheta_phi_2=-30 / 180 * np.pi,
-    vtheta_psi_0=0, vtheta_psi_1=30 / 180 * np.pi, vtheta_psi_2=-30 / 180 * np.pi
+    vf0=0, vf1=0.1*9.8*M, vf2=-0.1*9.8*M, 
+    vtheta_phi_0=0, vtheta_phi_1=5 / 180 * np.pi, vtheta_phi_2=-5 / 180 * np.pi,
+    vtheta_psi_0=0, vtheta_psi_1=5 / 180 * np.pi, vtheta_psi_2=-5 / 180 * np.pi
     ):
 
     action_table = [
@@ -60,7 +60,8 @@ def  create_random_start_state_vF():
         yc = (world_y_max + world_y_min) / 2.0
 
 
-        x = random.uniform(xc - x_range / 6.0, xc + x_range / 6.0)
+        # x = random.uniform(xc - x_range / 6.0, xc + x_range / 6.0)
+        x = 0
         z = 0
         y = yc + 0.4*y_range
 
@@ -84,7 +85,7 @@ def  create_random_start_state_vF():
             't': 0, 'step_id': 0
         }
 
-        return state
+        return state, y, vy
 
 
 def  create_random_start_state_vF_dir():
@@ -98,14 +99,14 @@ def  create_random_start_state_vF_dir():
         yc = (world_y_max + world_y_min) / 2.0
 
 
-        x = random.uniform(xc - x_range / 6.0, xc + x_range / 6.0)
-        z = random.uniform(xc - x_range / 6.0, xc + x_range / 6.0)
+        x = random.uniform(xc, xc + x_range / 6.0)
+        z = random.uniform(xc, xc + x_range / 6.0)
         y = yc + 0.4*y_range
 
 
         phi = random.uniform(np.pi/2, np.pi/2 + 10/180 * np.pi)
         if x < 0:
-            phi = random.uniform(np.pi/2 - 10.180 * np.pi, np.pi/2)
+            phi = random.uniform(np.pi/2 - 10/180 * np.pi, np.pi/2)
 
         psi = random.uniform(0, np.pi/6)
         if z < 0:
@@ -113,9 +114,10 @@ def  create_random_start_state_vF_dir():
 
         vy = -50
 
-        F = 1.2 * 9.8 * M
+        F = 0.9 * 9.8 * M
 
-        wind_vx, wind_vz = 0, wind_v(y)
+        # wind_vx, wind_vz = 0, wind_v(y)
+        wind_vx, wind_vz = 0, 0
 
         state = {
             'x': x, 'y': y, 'z': z,
@@ -145,10 +147,10 @@ class Rocket(object):
         self.init()
 
     def init(self):
-        self.state = create_random_start_state_vF()
+        self.state, y0, vy0 = create_random_start_state_vF()
         self.state['already_landing'] = False
         self.state['already_crash'] = False
-        return self.state
+        return self.state, y0, vy0
 
 
 
@@ -195,7 +197,9 @@ def check_crash(state):
     return crash
 
 
-def calculate_reward(state):
+def calculate_reward(state, y0, vy0):
+
+        
         x_range = world_x_max - world_x_min
         y_range = world_y_max - world_y_min
         z_range = world_z_max - world_z_min
@@ -220,9 +224,19 @@ def calculate_reward(state):
         else:
             att_reward = 0.1 * (1.0 - att_norm)
 
-        reward = loc_reward + att_reward
+        vy_reward = 0
+        if state['vy'] > 0:
+            vy_reward = -0.1
+        else:
+            vy_norm = abs(state['vy']) / expect_vy(state['vy'], y0, vy0) 
+            vy_reward = 0.1 * (1.0 - vy_norm)
+            # 越接近0， 则vy应该越大（负数）， 所以越接近零的vy应该获得越多的奖励，当y = 0时，vy应该等于0，此时奖励最大
+            # 也就是说，vy和y应该是正比，
+
+        reward = loc_reward + att_reward + vy_reward
 
         v = (state['vx'] ** 2 + state['vy'] ** 2 + state['vz'] ** 2) ** 0.5
+
         
         if state['already_crash']:
             reward = (reward + 5*np.exp(-1*v/10.)) * (max_steps - state['step_id'])
@@ -255,7 +269,9 @@ def dynamic_centriod(state, action):
     rho_vz = np.random.normal(wind_vz - vz, abs(wind_vz - vz)/10)
 
 
-    f_rho = [rho*rho_vx, 0, rho*rho_vz]
+    # f_rho = [rho*rho_vx, 0, rho*rho_vz]
+
+    f_rho = 0
 
 
     f_f_joint = f_f + G + f_rho
@@ -300,23 +316,6 @@ def dynamic_attitude(state, action):
     return phi_new, psi_new, gamma_new, vphi, vpsi, vgamma
 
 
-def dynamic_thrust(state, action):
-    theta_phi, theta_psi = state['theta_phi'], state['theta_psi']
-    
-    F, vtheta_phi, vtheta_psi = action # for 1d exp
-
-    new_theta_phi = theta_phi + vtheta_phi * dt
-    new_theta_psi = theta_psi + vtheta_psi * dt
-
-    if new_theta_phi < -40/180 * np.pi: new_theta_phi = -40/180 * np.pi
-    elif new_theta_phi > 40/180 * np.pi: new_theta_phi = 40/180 * np.pi
-    
-    if new_theta_psi < -40/180 * np.pi: new_theta_psi = -40/180 * np.pi
-    elif new_theta_psi > 40/180 * np.pi: new_theta_psi = 40/180 * np.pi
-
-    return F, new_theta_phi, new_theta_psi
-
-
 def dynamic_thrust_vF(state, action):
     F, theta_phi, theta_psi = state['F'], state['theta_phi'], state['theta_psi']
     
@@ -328,13 +327,13 @@ def dynamic_thrust_vF(state, action):
     new_theta_psi = theta_psi + vtheta_psi * dt
     new_F = F + vF
 
-    if new_theta_phi < -40/180 * np.pi: new_theta_phi = -40/180 * np.pi
-    elif new_theta_phi > 40/180 * np.pi: new_theta_phi = 40/180 * np.pi
+    if new_theta_phi < -25/180 * np.pi: new_theta_phi = -25/180 * np.pi
+    elif new_theta_phi > 25/180 * np.pi: new_theta_phi = 25/180 * np.pi
     
-    if new_theta_psi < -40/180 * np.pi: new_theta_psi = -40/180 * np.pi
-    elif new_theta_psi > 40/180 * np.pi: new_theta_psi = 40/180 * np.pi
+    if new_theta_psi < -25/180 * np.pi: new_theta_psi = -25/180 * np.pi
+    elif new_theta_psi > 25/180 * np.pi: new_theta_psi = 25/180 * np.pi
 
-    if new_F < 1.2 * 9.8 * M: new_F = 1.2 * 9.8 * M
+    if new_F < 0.2 * 9.8 * M: new_F = 0.2 * 9.8 * M
     elif new_F > 2 * 9.8 * M: new_F = 2 * 9.8 * M
 
     return new_F, new_theta_phi, new_theta_psi
@@ -342,13 +341,14 @@ def dynamic_thrust_vF(state, action):
 
 
 
-def dynamic_step(state, action):
+def dynamic_step(state, action, y0, vy0):
 
     already_landing = state['already_landing']
     if already_landing:
         vx, vy, vz, ax, ay, ax = 0, 0, 0, 0, 0, 0
         F, theta_phi, theta_psi = 0, 0, 0
-    
+
+
     step_id = state['step_id'] + 1
     x_new, y_new, z_new, vx_new, vy_new, vz_new \
      = dynamic_centriod(state, action)
@@ -375,8 +375,25 @@ def dynamic_step(state, action):
         'step_id': step_id, 't': step_id * dt,
         'wind_vx': 0, 'wind_vz': wind_v(y_new), 
         'already_crash': already_crash,
-        'already_landing': already_landing
+        'already_landing': already_landing,
     }
-    reward = calculate_reward(state)
+    reward = calculate_reward(state, y0, vy0)
 
     return state, reward, done, None
+
+
+def expect_vy(y, y0, vy0):
+    a = vy0 ** 2 / (2*y0) # a > 0
+    # print('a', a)
+    t_e = abs(vy0) / a # t_e > 0
+    # print('t_e',t_e)
+
+    t = t_e - (2 * abs(y) / a) ** 0.5# t > 0
+    # print('t', t)
+    abs_vy = abs(vy0) - a * t
+    return abs_vy
+
+if __name__ == "__main__":
+
+    print('vy', expect_vy(0, 600, -50))
+    pass 

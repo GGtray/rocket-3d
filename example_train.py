@@ -30,8 +30,8 @@ if __name__ == '__main__':
     net = ActorCritic(input_dim=env.state_dims, output_dim=env.action_dims).to(device)
     if len(glob.glob(os.path.join(ckpt_folder, '*.pt'))) > 0:
         # load the last ckpt
-        # checkpoint = torch.load(glob.glob(os.path.join(ckpt_folder, '*.pt'))[-1])
-        checkpoint = torch.load('landing_ckpt/ckpt_00085501.pt')
+        checkpoint = torch.load(glob.glob(os.path.join(ckpt_folder, '*.pt'))[-1])
+        # checkpoint = torch.load('landing_ckpt/ckpt_00085501.pt')
         net.load_state_dict(checkpoint['model_G_state_dict'])
         last_episode_id = checkpoint['episode_id']
         REWARDS = checkpoint['REWARDS']

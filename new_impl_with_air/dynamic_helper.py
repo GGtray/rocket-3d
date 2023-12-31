@@ -6,7 +6,7 @@ import numpy as np
 def M1_gamma(gamma, x):
     a = gamma
     M1 = [
-            [1,        0,       0],
+            [1,        0,     0],
             [0,  cos(a), sin(a)],
             [0, -sin(a), cos(a)]
         ]
@@ -36,13 +36,13 @@ def M3_phi(phi, x):
 
 def thrust_convert_phi_psi_to_1_2(theta_phi, theta_psi):
     """
-    目的：将推力的phi，psi描述变换为theta1，theta2描述
+    目的:将推力的phi,psi描述变换为theta1,theta2描述
     在箭体系下 
     theta_phi: x轴正向绕z轴正向按右手定则转theta_phi角
     theta_psi: x轴正向绕y轴正向按右手定则转theta_psi角
 
     theta_1: 
-    theta_2: y轴绕x轴正向，按右手定则确定正负，范围为（-pi，pi）
+    theta_2: y轴绕x轴正向,按右手定则确定正负,范围为（-pi,pi)
     """
     # 简化表示
     phi = theta_phi
@@ -94,26 +94,6 @@ def wind_v(y):
 
     return v
 
-
-# def p_wind(mu, sigma):
-#     return np.random.normal(mu, sigma)
-
-    # print(s)
-    # count, bins, ignored = plt.hist(s, 30, density=True)
-    # plt.plot(bins, 1/(sigma * np.sqrt(2 * np.pi)) *
-    #            np.exp( - (bins - mu)**2 / (2 * sigma**2) ),
-    #      linewidth=2, color='r')
-    # plt.show()
-
-# def test_thrust_convert_phi_psi_to_1_2():
-#     print(pi/4, -pi + pi/4)
-#     print(thrust_convert_phi_psi_to_1_2(pi/6, pi/6))
-#     print(thrust_convert_phi_psi_to_1_2(-pi/6, pi/6))
-#     print(thrust_convert_phi_psi_to_1_2(pi/6, -pi/6))
-#     print(thrust_convert_phi_psi_to_1_2(-pi/6, -pi/6))
-
-# def test_thrust_to_fx_fy_fz():
-#     print(thrust_to_fx_fy_fz(10, pi/4, pi/4))
 
 if __name__ == "__main__":
     # test_thrust_to_fx_fy_fz()

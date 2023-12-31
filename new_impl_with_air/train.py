@@ -46,12 +46,12 @@ def train_with_air():
     
     for episode_id in range(last_episode_id, max_m_episode):
         state_buffer = []
-        state = rocket.init()
+        state, y0, vy0 = rocket.init()
         rewards, log_probs, values, masks = [], [], [], []
         for step_id in range(max_steps):
             action_id, log_prob, value = net.get_action(flatten(state))
             action = action_table[action_id]
-            state, reward, done, _ = dynamic.dynamic_step(state, action)
+            state, reward, done, _ = dynamic.dynamic_step(state, action, y0, vy0)
             rewards.append(reward)
             log_probs.append(log_prob)
             values.append(value)

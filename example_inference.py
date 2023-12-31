@@ -11,9 +11,15 @@ if __name__ == '__main__':
 
     task = 'landing'  # 'hover' or 'landing'
     max_steps = 800
-    ckpt_dir = glob.glob(os.path.join(task+'_ckpt', '*.pt'))[-1]  # last ckpt
+    ckpt_folder = os.path.join('./', task + '_ckpt')
 
-    env = Rocket(task=task, max_steps=max_steps)
+    if not os.path.exists(ckpt_folder):
+        print('no data here!')
+    else:
+        pass
+    
+    pass
+    env = Rocket(task=task, rocket_type='falcon', max_steps=max_steps)
     net = ActorCritic(input_dim=env.state_dims, output_dim=env.action_dims).to(device)
     if os.path.exists(ckpt_dir):
         checkpoint = torch.load(ckpt_dir)
@@ -27,3 +33,4 @@ if __name__ == '__main__':
         if env.already_crash:
             break
 
+ 

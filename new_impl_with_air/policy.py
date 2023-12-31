@@ -141,8 +141,11 @@ class ActorCritic(nn.Module):
 
 
 if __name__ == '__main__':
-    x = torch.randn(2, 3, 4)
-    print(x)
-    # y = x.view(12)
-    # print(y)
-    print(x.view([-1, 1]))
+    # x = torch.randn(2, 3, 4)
+    # print(x)
+    # # y = x.view(12)
+    # # print(y)
+    # print(x.view([-1, 1]))
+    
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print(device)
